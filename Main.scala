@@ -2,11 +2,16 @@
 package object Automata {
 
 	type TransitionList[S,A] = List[(A,S)]
-
+	
 	trait StackOp[+A]
 	case class Push[A](a:A) extends StackOp[A]
 	case object Pop extends StackOp[Nothing]
+	case object DoNothing extends StackOp[Nothing]
 	case class PopPush[A](a:A) extends StackOp[A]
+	
+	trait StackHeadState[+A]
+	case class Head[A](a: A) extends StackHeadState[A]
+	case object Empty extends StackHeadState[Nothing]
 
 
 	// constructs a pair
@@ -31,12 +36,16 @@ package object Automata {
 	implicit class AppendOperation[A](l:List[A]) {
 		def __ (a:A) = l ++ List(a)
 	}
+	
+	implicit def someWrapper[A](a: A) = {
+		Some(a)
+	}
 
 }
 
 package Automata {
 
-	class FSM[S, A](alphabet: List[A], transitions: List[(S,TransitionList[S,A])], acceptStates: List[S]) {
+	class FSM[S, A](transitions: List[(S,TransitionList[S,A])], acceptStates: List[S]) {
 
 		val transitionMap = scala.collection.mutable.HashMap.empty[S, TransitionList[S,A]];
 
@@ -89,38 +98,41 @@ package Automata {
 	// S: state type
 	// IA: input alphabet type
 	// SA: stack alphabet type
-	class PushDown[S, IA, SA](inputAlphabet: List[IA], 
-			transitions:List[((S, IA, SA), (S, StackOp[SA]))],
-			acceptStates: List[S]) {
+	class PushDown[S, IA, SA]( transitions:List[((S, IA, StackHeadState[SA]), (S, StackOp[SA]))],
+															acceptStates: List[S]) {
 
-		val transitionMap = scala.collection.mutable.HashMap.empty[(S,IA,SA), (S,StackOp[SA])]
+		val transitionMap = scala.collection.mutable.HashMap.empty[(S,IA,StackHeadState[SA]), (S,StackOp[SA])]
 				transitions map (p =>
-				transitionMap += (p._1 -> p._2)
-						)
+					transitionMap += (p._1 -> p._2)
+				)
 
-				val stack = scala.collection.mutable.Stack.empty[SA]
+		val stack = scala.collection.mutable.Stack.empty[SA]
 
-				def accept(initState: S, seq: List[IA]) : Boolean = {
-					if (seq.length > 0){
-						transition (initState, seq.head) match {
-							case Some(nextState) => accept(nextState, seq.tail)
-							case None => false
-						}
-					} else {
-						acceptStates contains initState
-					}
+		def accept(initState: S, seq: List[IA]) : Boolean = {
+			if (seq.length > 0){
+				transition (initState, seq.head) match {
+					case Some(nextState) => accept(nextState, seq.tail)
+					case None => false
 				}
+			} else {
+				(acceptStates contains initState) || (stack.size == 0)
+			}
+		}
 
 		def transition(s: S, a: IA) = {
-				transitionMap get (s, a, stack.head) match {
+			
+			val head: StackHeadState[SA] = if (stack.size > 0) Head(stack.head) else Empty
+			
+			transitionMap get (s, a, head) match {
 				case Some((state, stackop)) => {
 					stackop match {
 						case Push(stackLetter) => stack.push(stackLetter)
-						case Pop => stack.pop()
+						case Pop => if (stack.size > 0) stack.pop()
 						case PopPush(stackLetter) => {
 							stack.pop()
 							stack.push(stackLetter)
 						}
+						case DoNothing => Unit
 					}
 					Some(state)
 				}
@@ -136,37 +148,7 @@ object Main {
 
 	def main(args: Array[String]) = {
 
-			// some examples
-
-			val L = << ('a' ==> 'b').
-					__ ('b' ==> 'c').
-					__ ('c' ==> 'd').
-					__ ('d' ==> 'e') >>
-
-			val M = << (3).
-			__ (4).
-			__ (5) >>
-
-			val otherList = List(
-					'A' ==> (
-							<< ('b' ==> 'C').
-							__ ('c' ==> 'D') >>
-							),
-					'B' ==> (
-							<< ('a' ==> 'C').
-							__ ('b' ==> 'D') >>
-							)
-					)      
-
-			Console println ( << ('A' ==> 'B').
-					__ ('B' ==> 'A')>> )
-
-			Console println otherList
-
-			val fsm = new FSM[Char, Char](
-	   	 // alphabet
-				List('a', 'b'),
-
+		val fsm = new FSM[Char, Char](
 				// transitions: state => list of (letter => state)
 				List( 
 						'A' ==> (
@@ -178,12 +160,26 @@ object Main {
 								__ ('b' ==> 'B') >>
 								)
 						),
-
+	
 				// accepting state(s)
 				List ('A')
-				)
+		)
 
 		Console println (fsm accept ('A', List('a', 'b', 'a')))
+		
+		val pda = new PushDown(
+			List(
+						("any", 'a', Empty)       ==> ("any", Push('A')),
+						("any", 'a', Head('A'))  ==> ("any", Push('A')),
+						("any", 'b', Head('A'))  ==> ("any", Pop),
+						("any", 'c', Head('A'))  ==> ("any", DoNothing)
+			),
+			
+			List.empty // only accept on empty stack
+		)
+			
+		Console println (pda accept ("any", "aabbaaabbbabaababbb".toList))
+		
 	}
 }
 
