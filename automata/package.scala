@@ -1,5 +1,3 @@
-package automata
-
 package object automata {
 
 	// this is idiotic i'm sorry

@@ -1,5 +1,4 @@
 package automata
-import automata._
 
 class FSM[S, A](transitions: List[(S,TransitionList[S,A])], acceptStates: List[S]) {
 

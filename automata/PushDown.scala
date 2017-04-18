@@ -1,6 +1,4 @@
 package automata
-import automata._
-
 
 // S: state type
 // IA: input alphabet type
