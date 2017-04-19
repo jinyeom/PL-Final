@@ -1,5 +1,8 @@
 package object automata {
 
+	val FILE_EXTENSION = ".atm"
+	val DEFAULT_NAME = null
+	
 	// this is idiotic i'm sorry
 	type TransitionList[S,A] = List[(A,S)]
 
