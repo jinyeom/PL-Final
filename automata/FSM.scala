@@ -5,21 +5,34 @@ import java.io._
 class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
 	
 		private val transitionMap = scala.collection.mutable.HashMap.empty[S, List[(A,S)]]
+		
+		/* Logging utilities */
 		private var shouldLogState = false
 		private var logFileOpen = false
+		
 		private var logFileName: String = generateFileName(DEFAULT_NAME)
+		private var usedLogFile: String = null
+		
+		private var fileOutput: PrintWriter = null;
 
 		transitions map (p => 
 			transitionMap += (p._1 -> p._2)
 		)
 
 		def accept(initState: S, seq: List[A]) : Boolean = {
+			/*
+			 * open the file
+			 */
+			logSetup()
+			
 			if (seq.length > 0){
+				// writeTolog(initState)
 				transition (initState, seq.head) match {
 					case Some(nextState) => accept(nextState, seq.tail)
 					case None => false
 				}
 			} else {
+				logFileOpen = false
 				acceptStates contains initState
 			}
 		}
@@ -53,6 +66,28 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
 		}
 		
 		/**
+		 * Setup code for the log file
+		 */
+		private def logSetup() {
+			if (!logFileOpen) {
+				if (shouldLogState) {
+					usedLogFile = makeFileName(logFileName) + FILE_EXTENSION
+					fileOutput = new PrintWriter(usedLogFile)
+					logFileOpen = true
+				}
+			}
+		}
+		
+		/**
+		 * "Close" the log file so that we use a new one for the next
+		 * run of the machine
+		 */
+		
+		/**
+		 * Close the log file 
+		 */
+		
+		/**
 		 * Set the name of the file to log to fileName
 		 * Sets shouldLogState to true
 		 */
@@ -62,14 +97,19 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
 			if (!shouldLogState)
 				throw new IllegalStateException("Field shouldLogState must be true to set file name")
 			
-			logFileName = 
+			logFileName = fileName
+		}
+		
+		private def makeFileName(fileName: String) = {
 				if (fileName == DEFAULT_NAME ||
-						fileName != DEFAULT_NAME && (new File(fileName)).exists) {
-					generateFileName(fileName) + FILE_EXTENSION
+					fileName != DEFAULT_NAME && (new File(fileName)).exists) {
+					
+					/* Make a new file name that is unique */
+					generateFileName(fileName)
 				} else {
-					fileName + FILE_EXTENSION
+					/* What was passed in is fine */
+					fileName
 				}
-			setShouldLogState(true)
 		}
 		
 		/**
