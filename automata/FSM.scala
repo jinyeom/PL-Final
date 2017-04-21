@@ -10,7 +10,7 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
 		private var shouldLogState = false
 		private var logFileOpen = false
 		
-		private var logFileName: String = generateFileName(DEFAULT_NAME)
+		private var logFileName: String = null
 		private var usedLogFile: String = null
 		
 		private var fileOutput: PrintWriter = null;
@@ -20,19 +20,19 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
 		)
 
 		def accept(initState: S, seq: List[A]) : Boolean = {
-			/*
-			 * open the file
-			 */
-			logSetup()
+			
+			/* Write the state to the log or set it up if necessary */
+			updateLog(initState)
 			
 			if (seq.length > 0){
-				// writeTolog(initState)
 				transition (initState, seq.head) match {
 					case Some(nextState) => accept(nextState, seq.tail)
 					case None => false
 				}
 			} else {
-				logFileOpen = false
+				/* Clean up the logging data */
+				cleanUpLog
+
 				acceptStates contains initState
 			}
 		}
@@ -59,8 +59,8 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
 		 * Generates a file name that doesn't exist
 		 */
 		private def generateFileName(start: String) = {
-			var fileName = if (start != DEFAULT_NAME) start else getClass.toString()
-			val predicate = (i: Int) => new File(fileName + i.toString) exists
+			var fileName = if (start != DEFAULT_NAME) start else getClass.getSimpleName
+			val predicate = (i: Int) => new File(DIRECTORY + fileName + i.toString + FILE_EXTENSION) exists
 			val num = scala.collection.immutable.Stream.from(0).dropWhile(predicate).head
 			fileName + num.toString
 		}
@@ -68,24 +68,41 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
 		/**
 		 * Setup code for the log file
 		 */
-		private def logSetup() {
-			if (!logFileOpen) {
-				if (shouldLogState) {
-					usedLogFile = makeFileName(logFileName) + FILE_EXTENSION
-					fileOutput = new PrintWriter(usedLogFile)
-					logFileOpen = true
-				}
+		private def updateLog(s: S) {			
+			if (!logFileOpen)
+				setupLog()
+			writeState(s)
+		}
+		
+		private def setupLog() = {
+			if (shouldLogState) {
+				println (logFileName)
+				println (makeFileName(logFileName))
+				usedLogFile = DIRECTORY + makeFileName(logFileName) + FILE_EXTENSION
+				println(usedLogFile)
+				
+				val logFile = new File(usedLogFile)
+				logFile.getParentFile.mkdirs
+				logFile.createNewFile
+				
+				fileOutput = new PrintWriter(usedLogFile)
+				println (fileOutput)
+				fileOutput.print(logHeader)
+				logFileOpen = true
 			}
 		}
 		
-		/**
-		 * "Close" the log file so that we use a new one for the next
-		 * run of the machine
-		 */
+		private def writeState(s: S) = {
+			if (logFileOpen)
+				fileOutput.print(logState(s))
+		}
 		
-		/**
-		 * Close the log file 
-		 */
+		private def cleanUpLog() {
+			usedLogFile = null
+			fileOutput.close()
+			fileOutput = null
+			logFileOpen = false
+		}
 		
 		/**
 		 * Set the name of the file to log to fileName
@@ -119,20 +136,6 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
 		 * TODO generalize when done
 		 */
 		def setShouldLogState(b: Boolean) = {
-			/*
-			 * If shouldLogState
-			 * 		if !b
-			 * 			delete the file (?)
-			 * 		else
-			 * 			do nothing
-			 * else
-			 * 		if b
-			 * 			open the file and write the header out to it
-			 * 			also, make sure that when accept finishes we update the file name
-			 * 			consecutive runs should not write to the same file
-			 * 			i admit it's a weird design decision but hey it'll work
-			 * 			too tired to write this correctly so this is all that's going to be here for now
-			 */
 			shouldLogState = b
 		}
 		
@@ -160,7 +163,7 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
 		/**
 		 * Dump the current state 
 		 */
-		private def logInfo(currentState: S) = {
+		private def logState(currentState: S) = {
 			"state: " + currentState.toString + "\n"
 		}
 
