@@ -8,10 +8,10 @@ class FSMLogInfo[S,A](
 		inputString: List[A],
 		states: List[S],
 		acceptStates: List[S]) 
-	extends Serializable{
+	extends Serializable {
   
   /* States that the FSM visited during the run */
-  var statesVisitedDuringRun: ListBuffer[S] = ListBuffer.empty
+  private var statesVisitedDuringRun: ListBuffer[S] = ListBuffer.empty
   
   /* Record that a state was visited */
   def recordVisited(state: S) = {

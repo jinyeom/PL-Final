@@ -52,16 +52,6 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
     /* Logging functions */
     
     /**
-     * Generates a file name that doesn't exist
-     */
-    private def generateFileName(start: String) = {
-      var fileName = if (start != DEFAULT_NAME) start else getClass.getSimpleName
-      val predicate = (i: Int) => new File(DIRECTORY + fileName + i.toString + FILE_EXTENSION) exists
-      val num = scala.collection.immutable.Stream.from(0).dropWhile(predicate).head
-      fileName + num.toString
-    }
-    
-    /**
      * Setup code for the log file
      */
     private def updateLog(s: S) {      
@@ -72,7 +62,7 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
     
     private def setupLog() = {
       if (shouldLogState) {
-        usedLogFile = DIRECTORY + makeFileName(logFileName) + FILE_EXTENSION
+        usedLogFile =  LogUtil.fullFileName(LogUtil.makeFileName(logFileName))
         
         val logFile = new File(usedLogFile)
         logFile.getParentFile.mkdirs
@@ -103,18 +93,6 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
     def setLogFileName(fileName: String) = {
       /* Shouldn't even be logging */
       logFileName = fileName
-    }
-    
-    private def makeFileName(fileName: String) = {
-        if (fileName == DEFAULT_NAME ||
-          fileName != DEFAULT_NAME && (new File(DIRECTORY + fileName + FILE_EXTENSION)).exists) {
-          
-          /* Make a new file name that is unique */
-          generateFileName(fileName)
-        } else {
-          /* What was passed in is fine */
-          fileName
-        }
     }
     
     /**
