@@ -1,5 +1,6 @@
 
 import automata._
+import java.io._
 
 object Main {
 
@@ -21,8 +22,18 @@ object Main {
     fsm setShouldLogState true
     fsm setLogFileName "test"
     
-    Console println (fsm accept ('A', "abaa" toList))
-    Console println (fsm accept ('B', "ababababab" toList))
+    println (fsm accept ('A', "abaa" toList))
+    println (fsm accept ('B', "ababababab" toList))
+    
+    /* Demonstration code ==> no exception handling! */
+    val ois = new ObjectInputStream(new FileInputStream(LogUtil.fullFileName("test")))
+    val log: FSMLogInfo[Char,Char] = ois.readObject().asInstanceOf[FSMLogInfo[Char,Char]]
+    
+    println(log.logFileName)
+    println(log.states)
+    println(log.transitions)
+    println(log.acceptStates)
+    println(log.inputString)
   }
   
 }
