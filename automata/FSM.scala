@@ -66,12 +66,12 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
     private def setupLog(inputString: List[A]) = {
       if (shouldLogState) {
         log = new FSMLogInfo(
-        		LogUtil.fullFileName(LogUtil.makeFileName(logFileName)),
-        		inputString,
-        		states toList,
-        		transitionMap,
-        		acceptStates
-        	)
+            LogUtil.fullFileName(LogUtil.makeFileName(logFileName)),
+            inputString,
+            states toList,
+            transitionMap,
+            acceptStates
+          )
         logFileOpen = true
       }
     }
@@ -82,8 +82,8 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
     }
     
     private def writeLog() = {
-    	if (logFileOpen)
-    		log.writeToLogFile()
+      if (logFileOpen)
+        log.writeToLogFile()
     }
     
     private def cleanUpLog() = {
