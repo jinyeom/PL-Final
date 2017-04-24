@@ -17,7 +17,8 @@ class FSMLogInfo[S,A](
     states: List[S],
     transitions: HashMap[S,List[(A,S)]],
     acceptStates: List[S]) 
-  extends Serializable {
+  extends LogInfo(logFileName)
+  with Serializable {
   
   def logFileName(): String = logFileName
   def inputString(): List[A] = inputString
@@ -33,28 +34,4 @@ class FSMLogInfo[S,A](
     statesVisitedDuringRun += state
   }
   
-  /* Create the file and serialize this object */
-  @throws(classOf[IOException])
-  @throws(classOf[IllegalStateException])
-  def writeToLogFile() = {
-    val logFile = new File(logFileName)
-    logFile.getParentFile.mkdirs
-    
-    /* This should not happen if the name generation is correct */
-    if (!logFile.createNewFile)
-      throw new IllegalStateException("File creation failed due to existing file.")
-    
-    println("writing out to " + logFileName + "...")
-    try {
-      val objOutputStream = new ObjectOutputStream(new FileOutputStream(logFileName))
-      objOutputStream writeObject this
-      objOutputStream close
-    } catch {
-      /* Maybe this could be handled more gracefully */
-      case e: IOException => {
-        println("Writing to log " + logFileName + " failed.")
-        e printStackTrace
-      }
-    }
-  }
 }
