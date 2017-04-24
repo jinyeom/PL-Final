@@ -1,8 +1,8 @@
 package automata
 
-import java.io._
+import java.io.{ObjectOutputStream, FileOutputStream, IOException, File}
 
-class LogInfo(logFileName: String) {
+class LogInfo(logFileName: String) extends Serializable {
   /* Create the file and serialize this object */
   @throws(classOf[IOException])
   @throws(classOf[IllegalStateException])
@@ -18,12 +18,12 @@ class LogInfo(logFileName: String) {
     try {
       val objOutputStream = new ObjectOutputStream(new FileOutputStream(logFileName))
       objOutputStream writeObject this
-      objOutputStream close
+      objOutputStream.close()
     } catch {
       /* Maybe this could be handled more gracefully */
       case e: IOException => {
         println("Writing to log " + logFileName + " failed.")
-        e printStackTrace
+        e.printStackTrace()
       }
     }
   }

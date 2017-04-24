@@ -117,4 +117,4 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
      */
     def loggingToFile = logFileName
 
-  }
+}

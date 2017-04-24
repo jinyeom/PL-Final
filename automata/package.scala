@@ -6,7 +6,7 @@ package object automata {
   // is this necessary?
   // possibly not, unless we want to have a "visualize" function that would
   // actually take general automata or more specialized ones
-  // if we do ever need it it'll be here lol
+  // if we do ever need it it'll be here 
   trait Automaton[S,A] {
     def transition(s: S, a: A) : Option[S]
     def accept(initState: S, string: List[A]) : Boolean

@@ -38,7 +38,4 @@ object LogUtil {
       fileName
     }
   }
-  
-  
-  
 }

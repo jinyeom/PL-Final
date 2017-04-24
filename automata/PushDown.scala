@@ -7,6 +7,7 @@ class PushDown[S, IA, SA](transitions: List[((S, IA, StackHeadState[SA]), (S, St
     acceptStates: List[S]) {
 
   val transitionMap = scala.collection.mutable.HashMap.empty[(S, IA, StackHeadState[SA]), (S, StackOp[SA])]
+  
   transitions map (p =>
     transitionMap += (p._1 -> p._2))
 
