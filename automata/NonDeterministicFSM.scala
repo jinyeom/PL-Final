@@ -3,12 +3,7 @@ package automata
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.DurationInt
-import scala.util.{Try, Success, Failure}
-
-/* 
- * FSM with a transition relation rather than function
- * and a parallelized accept function
- */
+import scala.util.{Try, Success, Failure} 
 
 class NonDeterministicFSM[S, A](transitions: List[(S,List[(A,List[S])])], acceptStates: List[S]) {
   
