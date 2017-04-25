@@ -2,7 +2,8 @@ package automata
 
 import java.io.{ObjectOutputStream, FileOutputStream, IOException, File}
 
-class LogInfo(logFileName: String) extends Serializable {
+class LogInfo(logFileName: String) 
+	extends Serializable {
   /* Create the file and serialize this object */
   @throws(classOf[IOException])
   @throws(classOf[IllegalStateException])

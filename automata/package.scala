@@ -1,8 +1,7 @@
 package object automata {
   
-  // this is idiotic i'm sorry
-  type TransitionList[S,A] = List[(A,S)]
-
+	type NDState[S, A] = (S, List[A])
+	
   // is this necessary?
   // possibly not, unless we want to have a "visualize" function that would
   // actually take general automata or more specialized ones
