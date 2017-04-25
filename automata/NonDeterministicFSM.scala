@@ -1,7 +1,9 @@
 package automata
 
-import scala.concurrent._
-import ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, Await}
+import scala.concurrent.duration.DurationInt
+import scala.util.{Try, Success, Failure}
 
 /* 
  * FSM with a transition relation rather than function
@@ -19,43 +21,42 @@ class NonDeterministicFSM[S, A](transitions: List[(S,List[(A,List[S])])], accept
   
   transitionMap.keySet map (states += _)
   
-  /*
-   * Accept function
-   * Something, something, List[Future[Boolean]]?
-   * fold (||) false <result>
-   */
-  
-  /*
-   * State will not be in the object itself, but passed around as
-   * an NDState object (basically a Tuple2[S, List[A]] representing
-   * the state along with the remaining input string.
-   * 
-   * (a: A, list: List[S])
-   * list map (s: S => (s, inputString)) map (accept _)
-   * right?
-   */
-  
   def accept(initState: S, seq: List[A]) = {
     acceptHelper(new NDState[S,A](initState, seq))
   }
   
-  private def acceptHelper(ndState: NDState[S,A]) = {
+  private def acceptHelper(ndState: NDState[S,A]): Boolean = {
     val currentState: S = ndState._1
     val inputString: List[A] = ndState._2
     
     if (inputString.length > 0) {
       transition(currentState, inputString.head) match {
         case Some(stateList) => {
-          /*
-           * Do some future-y stuff
-           */
-          stateList map (new NDState(_, inputString.tail)) // map futureFun foldLeft false (||)
+          
+          val ndStatesReachable = stateList map (new NDState(_, inputString.tail))
+          
+          /* Evaluate all possible paths and fold them up */
+          (ndStatesReachable map futureAccept).
+            foldLeft(false)((acc: Boolean, next: Future[Boolean]) => futureOr(acc, next))
         }
         case None => false
       }
     } else {
       acceptStates contains currentState
     }
+  }
+
+  @throws(classOf[Exception])
+  private def futureOr(acc: Boolean, next: Future[Boolean]) = (acc, next.value) match {
+  	case (a, Some(Success(n))) => a || n
+  	case (a, Some(Failure(e))) => throw e
+  	case (a, None) => Await.result(next, 10.seconds)
+  }
+
+  private def futureAccept(ndState: NDState[S,A]) = {
+  	Future {
+  		acceptHelper(ndState)
+  	}
   }
   
   private def transition(s : S, a : A) = transitionMap get s match {
