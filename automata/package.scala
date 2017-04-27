@@ -21,7 +21,7 @@ package object automata {
   trait StackHeadState[+A]
   case class Head[A](a: A) extends StackHeadState[A]
   case object Empty extends StackHeadState[Nothing]
-
+  
 
   // constructs a pair
   implicit class Transition[S,A](a: A) {
