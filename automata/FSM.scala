@@ -2,16 +2,12 @@ package automata
 
 import java.io._
 
-class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
+class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) 
+    extends LoggableAutomaton[FSMLogInfo[S,A], S, A]{
 
   private val transitionMap = scala.collection.mutable.HashMap.empty[S, List[(A,S)]]
   private val states = scala.collection.mutable.ListBuffer.empty[S]
   
-  /* Logging information */
-  private var shouldLogState = false
-  private var logFileOpen = false
-  private var log: FSMLogInfo[S,A] = null
-  private var logFileName: String = null
   
   /* Build the transition map */
   transitions map (p => 
@@ -42,11 +38,11 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
 
   def transition(s : S, a : A) = transitionMap get s match {
     case Some(transitionList) => {
-      val possibleTransitions = transitionList filter (_._1 == a)
-      if ((possibleTransitions length) == 0) {
+      val transitions = transitionList filter (_._1 == a)
+      if ((transitions length) == 0) {
         None
       } else {
-        Some(possibleTransitions.head._2)
+        Some(transitions.head _2)
       }
     }
     case None => None
@@ -57,64 +53,33 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
   /**
    * Setup code for the log file
    */
-  private def updateLog(s: S, input: List[A]) {      
-    if (!logFileOpen)
-      setupLog(input)
-    writeState(s)
-  }
-  
-  private def setupLog(inputString: List[A]) = {
-    if (shouldLogState) {
-      log = new FSMLogInfo(
-          LogUtil.fullFileName(LogUtil.makeFileName(logFileName)),
-          inputString,
-          states toList,
-          transitionMap,
-          acceptStates
-        )
-      logFileOpen = true
+  def makeLog(inputString: List[A]) = {
+  	if (shouldLogState) {
+  		logFileName match {
+  			case Some(fileName) => {
+  				Some(
+  				  new FSMLogInfo(
+              LogUtil.fullFileName(LogUtil.makeFileName(fileName)),
+              inputString,
+              states toList,
+              transitionMap,
+              acceptStates)
+  				)
+  			}
+  			case None => None
+  		}
+    } else {
+  	  None
     }
   }
-  
-  private def writeState(s: S) = {
-    if (logFileOpen)
-      log.recordVisited(s)
-  }
-  
-  private def writeLog() = {
-    if (logFileOpen)
-      log.writeToLogFile()
-  }
-  
-  private def cleanUpLog() = {
-    log = null
-    logFileOpen = false
-  }
-  
-  /**
-   * Set the name of the file to log to fileName
-   * Sets shouldLogState to true
-   */
-  def setLogFileName(fileName: String) = {
-    logFileName = fileName
-  }
-  
-  /**
-   * Set whether this automaton should log state
-   */
-  def setShouldLogState(b: Boolean) = {
-    shouldLogState = b
-  }
-  
-  /**
-   * Get value of shouldLogState
-   */
-  def willLog = shouldLogState
-  
-  /**
-   * Get name of file that the log will
-   * be written to
-   */
-  def loggingToFile = logFileName
 
+  def recordTransition(s: S) {
+  	log match {
+  		case Some(fsmLogInfo) => {
+  			fsmLogInfo.recordVisited(s)
+  		}
+  		case None => Unit
+  	}
+  }
+  
 }

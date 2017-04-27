@@ -20,7 +20,7 @@ class FSMLogInfo[S,A](
   extends LogInfo(logFileName)
   with Serializable {
   
-	/* States that the FSM visited during the run */
+  /* States that the FSM visited during the run */
   private var statesVisitedDuringRun: ListBuffer[S] = ListBuffer.empty
   
   def logFileName(): String = logFileName
