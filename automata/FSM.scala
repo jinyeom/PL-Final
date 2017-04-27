@@ -54,32 +54,32 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S])
    * Setup code for the log file
    */
   def makeLog(inputString: List[A]) = {
-  	if (shouldLogState) {
-  		logFileName match {
-  			case Some(fileName) => {
-  				Some(
-  				  new FSMLogInfo(
+    if (shouldLogState) {
+      logFileName match {
+        case Some(fileName) => {
+          Some(
+            new FSMLogInfo(
               LogUtil.fullFileName(LogUtil.makeFileName(fileName)),
               inputString,
               states toList,
               transitionMap,
               acceptStates)
-  				)
-  			}
-  			case None => None
-  		}
+          )
+        }
+        case None => None
+      }
     } else {
-  	  None
+      None
     }
   }
 
   def recordTransition(s: S) {
-  	log match {
-  		case Some(fsmLogInfo) => {
-  			fsmLogInfo.recordVisited(s)
-  		}
-  		case None => Unit
-  	}
+    log match {
+      case Some(fsmLogInfo) => {
+        fsmLogInfo.recordVisited(s)
+      }
+      case None => Unit
+    }
   }
   
 }
