@@ -18,16 +18,16 @@ class PushDown[S, IA, SA](transitions: List[((S, StackHeadState[SA]), List[(IA, 
   val stack = scala.collection.mutable.Stack.empty[SA]
 
   def accept(initState: S, seq: List[IA]): Boolean = {
-  	updateLog((initState, stack toList), seq)
+    updateLog((initState, stack toList), seq)
     if (seq.length > 0) {
       transition(initState, seq.head) match {
         case Some(nextState) => accept(nextState, seq.tail)
         case None => false
       }
     } else {
-    	writeLog
-    	cleanUpLog
-    	
+      writeLog
+      cleanUpLog
+      
       (acceptStates contains initState) || (stack.size == 0)
     }
   }
@@ -38,11 +38,11 @@ class PushDown[S, IA, SA](transitions: List[((S, StackHeadState[SA]), List[(IA, 
     
     transitionMap get (s, head) match {
       case Some(transitionList) => {
-      	val possibleTransitions = transitionList filter (_._1 == a)
-      	if (possibleTransitions.length == 0) {
-      		None
-      	} else {
-      		val (state, stackop) = possibleTransitions.head._2
+        val possibleTransitions = transitionList filter (_._1 == a)
+        if (possibleTransitions.length == 0) {
+          None
+        } else {
+          val (state, stackop) = possibleTransitions.head._2
           stackop match {
             case Push(stackLetter) => stack.push(stackLetter)
             case Pop => if (stack.size > 0) stack.pop()
@@ -53,37 +53,37 @@ class PushDown[S, IA, SA](transitions: List[((S, StackHeadState[SA]), List[(IA, 
             case DoNothing => Unit
           }
           Some(state)
-      	}
+        }
       }
       case None => None
     }
   }
   
   def makeLog(inputString: List[IA]) = {
-  	if (shouldLogState) {
-  		logFileName match {
-  			case Some(fileName) => {
-  				Some(
-  				  new PushDownLogInfo(
+    if (shouldLogState) {
+      logFileName match {
+        case Some(fileName) => {
+          Some(
+            new PushDownLogInfo(
               LogUtil.fullFileName(LogUtil.makeFileName(fileName)),
               inputString,
               states toList,
               transitionMap,
               acceptStates)
-  				)
-  			}
-  			case None => None
-  		}
+          )
+        }
+        case None => None
+      }
     } else {
-  	  None
+      None
     }
   }
   
   def recordTransition(stateAndStack: (S, List[SA])) {
-  	log match {
-  		case Some(logInfo) => logInfo.recordVisited(stateAndStack)
-  		case None => Unit
-  	}
+    log match {
+      case Some(logInfo) => logInfo.recordVisited(stateAndStack)
+      case None => Unit
+    }
   }
   
 }
