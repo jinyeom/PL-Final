@@ -42,11 +42,11 @@ class FSM[S, A](transitions: List[(S,List[(A,S)])], acceptStates: List[S]) {
 
   def transition(s : S, a : A) = transitionMap get s match {
     case Some(transitionList) => {
-      val transitions = transitionList filter (_._1 == a)
-      if ((transitions length) == 0) {
+      val possibleTransitions = transitionList filter (_._1 == a)
+      if ((possibleTransitions length) == 0) {
         None
       } else {
-        Some(transitions.head _2)
+        Some(possibleTransitions.head._2)
       }
     }
     case None => None

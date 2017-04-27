@@ -20,14 +20,16 @@ class FSMLogInfo[S,A](
   extends LogInfo(logFileName)
   with Serializable {
   
+	/* States that the FSM visited during the run */
+  private var statesVisitedDuringRun: ListBuffer[S] = ListBuffer.empty
+  
   def logFileName(): String = logFileName
   def inputString(): List[A] = inputString
   def states(): List[S] = states
   def transitions(): HashMap[S,List[(A,S)]] = transitions
   def acceptStates(): List[S] = acceptStates
   
-  /* States that the FSM visited during the run */
-  private var statesVisitedDuringRun: ListBuffer[S] = ListBuffer.empty
+  def visitedStates() = statesVisitedDuringRun
   
   /* Record that a state was visited */
   def recordVisited(state: S) = {
