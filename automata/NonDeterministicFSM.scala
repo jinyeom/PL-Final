@@ -17,10 +17,10 @@ class NonDeterministicFSM[S, A](transitions: List[(S,List[(A,List[S])])], accept
   transitionMap.keySet map (states += _)
   
   def accept(initState: S, seq: List[A]) = {
-    acceptHelper(new NDState[S,A](initState, seq))
+    acceptHelper(new NDFSMState[S,A](initState, seq))
   }
   
-  private def acceptHelper(ndState: NDState[S,A]): Boolean = {
+  private def acceptHelper(ndState: NDFSMState[S,A]): Boolean = {
     val currentState: S = ndState._1
     val inputString: List[A] = ndState._2
     
@@ -28,7 +28,7 @@ class NonDeterministicFSM[S, A](transitions: List[(S,List[(A,List[S])])], accept
       transition(currentState, inputString.head) match {
         case Some(stateList) => {
           
-          val ndStatesReachable = stateList map (new NDState(_, inputString.tail))
+          val ndStatesReachable = stateList map (new NDFSMState(_, inputString.tail))
           
           /* Evaluate all possible paths and fold them up */
           (ndStatesReachable map futureAccept).
@@ -48,7 +48,7 @@ class NonDeterministicFSM[S, A](transitions: List[(S,List[(A,List[S])])], accept
   	case (a, None) => Await.result(next, 10.seconds)
   }
 
-  private def futureAccept(ndState: NDState[S,A]) = {
+  private def futureAccept(ndState: NDFSMState[S,A]) = {
   	Future {
   		acceptHelper(ndState)
   	}

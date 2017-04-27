@@ -1,6 +1,7 @@
 package object automata {
   
-	type NDState[S, A] = (S, List[A])
+	type NDFSMState[S, A] = (S, List[A])
+  type NDPushDownState[S, IA, SA] = (S, List[IA], List[SA])
 	
   // is this necessary?
   // possibly not, unless we want to have a "visualize" function that would
@@ -28,11 +29,16 @@ package object automata {
   }
 
   // alternate list constructor
+  val NOTHING = null
+  
   object << {
     def apply[A](a: A) = {
+    	if (a == NOTHING)
+    		List.empty
+    	else
         List[A](a)
     }
-  } 
+  }
 
   // not necessary but it makes things look much nicer
   // just a list identity function
