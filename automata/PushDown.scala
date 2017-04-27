@@ -47,7 +47,7 @@ class PushDown[S, IA, SA](transitions: List[((S, StackHeadState[SA]), List[(IA, 
             case Push(stackLetter) => stack.push(stackLetter)
             case Pop => if (stack.size > 0) stack.pop()
             case PopPush(stackLetter) => {
-              stack.pop()
+              if (stack.size > 0) stack.pop()
               stack.push(stackLetter)
             }
             case DoNothing => Unit
