@@ -3,10 +3,10 @@ package automata
 // S: state type
 // IA: input alphabet type
 // SA: stack alphabet type
-class PushDown[S, IA, SA](transitions: List[((S, IA, StackHeadState[SA]), (S, StackOp[SA]))],
+class PushDown[S, IA, SA](transitions: List[((S, StackHeadState[SA]), List[(IA, (S, StackOp[SA]))])],
     acceptStates: List[S]) {
 
-  val transitionMap = scala.collection.mutable.HashMap.empty[(S, IA, StackHeadState[SA]), (S, StackOp[SA])]
+  val transitionMap = scala.collection.mutable.HashMap.empty[(S, StackHeadState[SA]), List[(IA, (S, StackOp[SA]))]]
   
   transitions map (p =>
     transitionMap += (p._1 -> p._2))
@@ -27,19 +27,25 @@ class PushDown[S, IA, SA](transitions: List[((S, IA, StackHeadState[SA]), (S, St
   def transition(s: S, a: IA) = {
 
     val head: StackHeadState[SA] = if (stack.size > 0) Head(stack.head) else Empty
-
-    transitionMap get (s, a, head) match {
-      case Some((state, stackop)) => {
-        stackop match {
-          case Push(stackLetter) => stack.push(stackLetter)
-          case Pop => if (stack.size > 0) stack.pop()
-          case PopPush(stackLetter) => {
-            stack.pop()
-            stack.push(stackLetter)
+    
+    transitionMap get (s, head) match {
+      case Some(transitionList) => {
+      	val possibleTransitions = transitionList filter (_._1 == a)
+      	if (possibleTransitions.length == 0) {
+      		None
+      	} else {
+      		val (state, stackop) = possibleTransitions.head._2
+          stackop match {
+            case Push(stackLetter) => stack.push(stackLetter)
+            case Pop => if (stack.size > 0) stack.pop()
+            case PopPush(stackLetter) => {
+              stack.pop()
+              stack.push(stackLetter)
+            }
+            case DoNothing => Unit
           }
-          case DoNothing => Unit
-        }
-        Some(state)
+          Some(state)
+      	}
       }
       case None => None
     }
