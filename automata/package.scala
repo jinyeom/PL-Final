@@ -7,6 +7,12 @@ package object automata {
   // possibly not, unless we want to have a "visualize" function that would
   // actually take general automata or more specialized ones
   // if we do ever need it it'll be here 
+  //
+  //  Jin:
+  //    I think what we need is this kind of trait for LogInfo, not Automaton.
+  //    I'm currently using two types for the visualizer, but it seems like PushDown
+  //    uses three.
+  //  
   trait Automaton[S,A] {
     def transition(s: S, a: A) : Option[S]
     def accept(initState: S, string: List[A]) : Boolean
