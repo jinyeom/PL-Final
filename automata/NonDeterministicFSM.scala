@@ -21,8 +21,8 @@ class NonDeterministicFSM[S, A](transitions: List[(S,List[(A,List[S])])], accept
   }
   
   private def acceptHelper(ndState: NDFSMState[S,A]): Boolean = {
-    val currentState: S = ndState._1
-    val inputString: List[A] = ndState._2
+  	
+  	val (currentState, inputString) = ndState
     
     if (inputString.length > 0) {
       transition(currentState, inputString.head) match {
@@ -39,13 +39,6 @@ class NonDeterministicFSM[S, A](transitions: List[(S,List[(A,List[S])])], accept
     } else {
       acceptStates contains currentState
     }
-  }
-
-  @throws(classOf[Exception])
-  private def futureOr(acc: Boolean, next: Future[Boolean]) = (acc, next.value) match {
-  	case (a, Some(Success(n))) => a || n
-  	case (a, Some(Failure(e))) => throw e
-  	case (a, None) => Await.result(next, 10.seconds)
   }
 
   private def futureAccept(ndState: NDFSMState[S,A]) = {

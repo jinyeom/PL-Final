@@ -1,5 +1,9 @@
-package object automata {
-  
+import scala.concurrent.{Future, Await}
+import scala.concurrent.duration.DurationInt
+import scala.util.{Try, Success, Failure}
+
+package object automata {  
+	
 	type NDFSMState[S, A] = (S, List[A])
   type NDPushDownState[S, IA, SA] = (S, List[IA], List[SA])
 	
@@ -27,7 +31,7 @@ package object automata {
   trait StackHeadState[+A]
   case class Head[A](a: A) extends StackHeadState[A]
   case object Empty extends StackHeadState[Nothing]
-
+  
 
   // constructs a pair
   implicit class Transition[S,A](a: A) {
@@ -56,5 +60,14 @@ package object automata {
   implicit class AppendOperation[A](l: List[A]) {
     def __ (a: A) = l ++ List(a)
   }
+  
+  implicit def intList2DoubleList(list: List[Int]) = list map (_.toDouble)
 
+  @throws(classOf[Exception])
+  def futureOr(acc: Boolean, next: Future[Boolean]) = (acc, next.value) match {
+  	case (a, Some(Success(n))) => a || n
+  	case (a, Some(Failure(e))) => throw e
+  	case (a, None) => Await.result(next, 10.seconds)
+  }
+  
 }
