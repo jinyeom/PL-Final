@@ -54,6 +54,8 @@ package object automata {
   implicit class AppendOperation[A](l: List[A]) {
     def __ (a: A) = l ++ List(a)
   }
+  
+  implicit def intList2DoubleList(list: List[Int]) = list map (_.toDouble)
 
   @throws(classOf[Exception])
   def futureOr(acc: Boolean, next: Future[Boolean]) = (acc, next.value) match {

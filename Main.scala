@@ -6,77 +6,29 @@ object Main {
 
   def main(args: Array[String]) = {
     
-    val nd: NonDeterministicFSM[Char, Char] = new NonDeterministicFSM[Char, Char](
-        List(
-            'P' ==> (
-                << ('0' ==> (
-                    << ('P') >>
-                  )
-                ).
-                __ ('1' ==> (
-                    << ('P') __ ('Q') >>
-                   )
-                ) >>
-              ),
-            'Q' ==> (
-                << (NOTHING) >>
-            )
-        ),
-        << ('Q') >>
-     )
-     
-    println (nd accept ('P', "011110101010100101" toList))
-    
-    val fsmtrans =
-      << (('p') ==> (
-          << ('1' ==> 'p').
-          __ ('0' ==> 'q') >>
-         )).
-      __ (('q') ==> (
-          << ('1' ==> 'p').
-          __ ('0' ==> 'q') >>
-          )
-      ) >>
-      
-    val x = 'n' ==> ('a', Pop)
-    
-    val pdtrans = List(
-    				('p', Empty) ==> List(
-    						('a' ==> ('p', Push('a')))
-    				  ),
-    				('p', Head('a')) ==> List(
-    						('a' ==> ('p', Push('a'))),
-    						('b' ==> ('p', Pop))
-    					))
-    
-    val pd = new PushDown[Char, Char, Char](
-    		List(
-    				('p', Empty) ==> List(
-    						('a' ==> ('p', Push('a')))
-    				  ),
-    				('p', Head('a')) ==> List(
-    						('a' ==> ('p', Push('a'))),
-    						('b' ==> ('p', Pop))
-    					)
-    				),
-    		List.empty
-    )
-    
-    val fsm = new FSM[Char,Char](fsmtrans, List('p'))
-    
-    fsm.setShouldLogState(true)
-    fsm.setLogFileName("fsm_")
-    
-    pd setShouldLogState true
-    pd setLogFileName "pd_"
-    
-    println (fsm accept ('p', "00000001110100100101001011" toList))
-    println (pd accept ('p', "abababababab" toList))
-    
-    val readLog = (new ObjectInputStream(new FileInputStream(LogUtil.fullFileName("pd_")))).readObject().asInstanceOf[PushDownLogInfo[Char, Char, Char]]
-    
-    println(readLog.states())
-    println(readLog.visitedStatesAndStacks())
+	  /* Just generate 0-4 and then print them out */
+  	val cell0 = new SystolicCell
+  	val input0 = new InputCell(<< (0) __ (1) __ (2) __ (3) >>)
+  	
+  	cell0 setRightInput input0
+  	cell0 setStepFunction (
+  			(top, bottom, left, right) => right
+  		)
+  	
+  	input0.step
+  	cell0.step
+  	input0.update
+  	cell0.update
+  	
+  	while (input0.getOutput != None) {
+  		input0.step
+  		cell0.step
+  		input0.update
+  		cell0.update
+  	}
+  	
+  	println(input0 getOutput) // None
+  	println(cell0 getOutput)  // Some(3.0)
     
   }
   
