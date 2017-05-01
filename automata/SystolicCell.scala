@@ -9,8 +9,8 @@ class SystolicCell {
   
   private var stepFunction:  Option[(Option[Double], Option[Double], Option[Double], Option[Double]) => Option[Double]] = None
   
-  private var computed: Option[Double] = None
-  private var output: Option[Double] = None
+  var computed: Option[Double] = None
+  var output: Option[Double] = None
   
   def update = {
     output = computed
