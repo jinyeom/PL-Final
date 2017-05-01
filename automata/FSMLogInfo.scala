@@ -29,7 +29,7 @@ class FSMLogInfo[S,A](
   def transitions(): HashMap[S,List[(A,S)]] = transitions
   def acceptStates(): List[S] = acceptStates
   
-  def visitedStates() = statesVisitedDuringRun
+  def visitedStates() = statesVisitedDuringRun.toList
   
   /* Record that a state was visited */
   def recordVisited(state: S) = {
