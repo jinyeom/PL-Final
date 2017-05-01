@@ -7,6 +7,10 @@ import java.awt.Dimension
 import java.awt.Graphics2D
 import java.awt.Graphics
 import java.awt.Color
+import java.awt.image.BufferedImage
+import com.mxgraph.swing.mxGraphComponent
+import com.mxgraph.view.mxGraph
+
 
 object HelloWorldSwing {
   
@@ -30,18 +34,30 @@ object HelloWorldSwing {
     val label: JLabel = new JLabel("Push Down Finite State Machine", SwingConstants.CENTER)
     frame.getContentPane.add(label, BorderLayout.PAGE_START)
     
-    val graph: JButton = new JButton("FSM Graph")
+    val graph: JFrame = new JFrame()
     graph.setPreferredSize(new Dimension(350, 350))
     
-//    val canvas = new BufferedImage(size._1, 
-//    
-//    val g = new Graphics() 
-//    g.setColor(Color.RED)
-//    g.drawOval(0, 50, 30, 30)
-//    
-//    graph.add(g)
+    val g: mxGraph = new mxGraph()
+    val parent: AnyRef = g.getDefaultParent
     
-    frame.add(graph, BorderLayout.CENTER)
+    g.getModel().beginUpdate()
+    g.setAllowDanglingEdges(false)
+    try {
+      val v1: AnyRef = g.insertVertex(parent, null, "A", 20, 20, 40, 40, "shape=ellipse;perimeter=ellipsePerimeter")
+      val v2: AnyRef = g.insertVertex(parent, null, "B", 200, 150, 40, 40, "shape=ellipse;perimeter=ellipsePerimeter")
+      val v3: AnyRef = g.insertVertex(parent, null, "C", 200, 0, 40, 40, "shape=ellipse;perimeter=ellipsePerimeter")
+      g.insertEdge(parent, null, "", v1, v3)
+      g.insertEdge(parent, null, "", v2, v3)
+      g.insertEdge(parent, null, "", v1, v2)
+    } finally {
+      g.getModel().endUpdate()
+    }
+    
+    
+    
+    val graphComponent: mxGraphComponent = new mxGraphComponent(g)
+    
+    frame.getContentPane.add(graphComponent)
     
     val stack: JTextArea = new JTextArea(2, 10)
     stack.setEditable(false)

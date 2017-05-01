@@ -12,7 +12,6 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.HashMap
 import com.mxgraph.swing.mxGraphComponent
 import com.mxgraph.view.mxGraph
-import com.mxgraph.model.mxCell
 
 // FSMVisualizer given two types for input string and states, and a LogInfo.
 class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
@@ -30,7 +29,7 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   var inputString: List[A] = fsmLog.inputString()
   
   val nodeSize: Int = 40
-  val gapSize: Int = 40
+  val gapSize: Int = 20
   val graphWidth: Int = 500
   val graphHeight: Int = 500
   
@@ -45,7 +44,6 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   // frame for visualization
   val frame: JFrame = new JFrame("FSM Visualizer") 
   frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-  frame.setSize(500, 500)
   
   // label (name) of the automaton
   val label: JLabel = new JLabel(name, SwingConstants.CENTER)
@@ -76,7 +74,7 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   // add a node for each state in the FSM.
   for (state <- fsmLog.states()) {
     var node: AnyRef = g.insertVertex(parent, null, state.toString(), nextCol, nextRow, 
-        nodeSize, nodeSize, "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#eeeeee")
+        nodeSize, nodeSize, "shape=ellipse;perimeter=ellipsePerimeter")
         
     nextCol += (nodeSize + gapSize)
     if (nextCol >= graphWidth) {
@@ -87,16 +85,14 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
     nodes += (state -> node)
   }
   
-  // change the currState's color to active.
-  nodes(currState).asInstanceOf[mxCell].setStyle(
-      "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#ef5350")
-  
-  // add an edge for each transition
   for ((from, paths) <- fsmLog.transitions()) {
     for ((edge, to) <- paths) {
-      g.insertEdge(parent, null, edge.toString(), nodes(from), nodes(to))
+      g.insertEdge(parent, null, "", nodes(from), nodes(to))
     }
   }
+  
+  frame.setSize(500, 500)
+  
   g.getModel().endUpdate()
   
   val graphComponent: mxGraphComponent = new mxGraphComponent(g)
@@ -106,24 +102,15 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   object StepListener extends ActionListener {
     def actionPerformed(e: ActionEvent) {
       if (nextStates.length != 0) {
-        g.getModel().beginUpdate()
-        
-        // change the currState's color to inactive color
-        nodes(currState).asInstanceOf[mxCell].setStyle(
-          "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#eeeeee")
-        
         currState = nextStates.head
         nextStates = nextStates.tail
-        
-        // change the new currState's color to active color
-        nodes(currState).asInstanceOf[mxCell].setStyle(
-          "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#ef5350")
         
         // remove the current input
         inputs.getModel().asInstanceOf[DefaultTableModel].removeRow(1)
         
-        g.getModel().endUpdate()
-        g.refresh()
+        // for debugging
+        println(currState)
+        println(nextStates)
       }
     }
   }
