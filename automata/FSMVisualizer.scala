@@ -44,6 +44,7 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   // frame for visualization
   val frame: JFrame = new JFrame("FSM Visualizer") 
   frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+  frame.setSize(500, 500)
   
   // label (name) of the automaton
   val label: JLabel = new JLabel(name, SwingConstants.CENTER)
@@ -85,14 +86,12 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
     nodes += (state -> node)
   }
   
+  // add an edge for each transition
   for ((from, paths) <- fsmLog.transitions()) {
     for ((edge, to) <- paths) {
-      g.insertEdge(parent, null, "", nodes(from), nodes(to))
+      g.insertEdge(parent, null, edge.toString(), nodes(from), nodes(to))
     }
   }
-  
-  frame.setSize(500, 500)
-  
   g.getModel().endUpdate()
   
   val graphComponent: mxGraphComponent = new mxGraphComponent(g)
@@ -102,15 +101,15 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   object StepListener extends ActionListener {
     def actionPerformed(e: ActionEvent) {
       if (nextStates.length != 0) {
+        
+        
         currState = nextStates.head
         nextStates = nextStates.tail
         
+        
+        
         // remove the current input
         inputs.getModel().asInstanceOf[DefaultTableModel].removeRow(1)
-        
-        // for debugging
-        println(currState)
-        println(nextStates)
       }
     }
   }
