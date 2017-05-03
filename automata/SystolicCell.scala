@@ -44,7 +44,7 @@ class SystolicCell {
   def step = {
     val List(top, bottom, left, right) = 
       List(topInput, bottomInput, leftInput, rightInput) map cellOutput
-    
+     
     computed = stepFunction match {
       case Some(fun) => fun(top, bottom, left, right)
       case None => None

@@ -9,7 +9,7 @@ object SystolicTests {
     /* Just generate 0-4 and then print them out */
     val cell0 = new SystolicCell
     val input0 = new InputCell(
-    		<< (0) __ (1) __ (2) __ (3) >>
+        << (0) __ (1) __ (2) __ (3) >>
     )
     
     cell0 setRightInput input0
@@ -29,31 +29,43 @@ object SystolicTests {
       cell0.update
     }
     
-    val matrix = List(
-    		<< (2.0) __ (0.0) __ (0.0) >>,
-    		<< (0.0) __ (2.0) __ (0.0) >>,
-    		<< (0.0) __ (0.0) __ (2.0) >>
+    
+    /* 
+     * More complicated example, construction 
+     * code in MatrixByVectorMultiply.scala 
+     */
+    val matrix1 = List(
+        << (2.0) __ (0.0) __ (0.0) __ (0.0) >>,
+        << (0.0) __ (2.0) __ (0.0) __ (0.0) >>,
+        << (0.0) __ (0.0) __ (2.0) __ (0.0) >>,
+        << (0.0) __ (0.0) __ (0.0) __ (2.0) >>
     )
     
-    val vector = List(3.0, 3.0, 3.0)
+    val vector1 = List(3.0, 3.0, 3.0, 3.0)
     
-    val mbv = new MatrixByVectorMultiplyArray(matrix)
-    val (output, valueCells, inputCells, rightin) = mbv.getSystolicArray(vector)
+    println ("Test1")
     
-    for (i <- 1 to 20){
-			output.step
-			valueCells map (_.step)
-			inputCells map (_.step)
-			rightin.step
-			output.update
-			valueCells map (_.update)
-			inputCells map (_.update)
-			rightin.update
-			output.getOutput match {
-				case Some(value) => println(value)
-				case None => Unit
-			}
-    }
+    val mbvBuilder1 = new MatrixByVectorMultiply(matrix1)
+    val mbv1 = mbvBuilder1 getSystolicArray vector1
+    
+    val matrix2 = List(
+        << (2.0) __ (0.0) __ (0.0) >>,
+        << (0.0) __ (2.0) __ (0.0) >>,
+        << (0.0) __ (0.0) __ (2.0) >>
+    )
+    
+    mbv1 printOutputs
+    
+    println ("\nTest2")
+    
+    val vector2 = List(3.0, 3.0, 3.0)
+    
+    val mbvBuilder2 = new MatrixByVectorMultiply(matrix2)
+    val mbv2 = mbvBuilder2 getSystolicArray vector2
+    
+    mbv2 printOutputs
+    
+    
   }
   
 }
