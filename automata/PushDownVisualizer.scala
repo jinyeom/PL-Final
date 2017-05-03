@@ -13,8 +13,7 @@ import scala.collection.mutable.HashMap
 import com.mxgraph.swing.mxGraphComponent
 import com.mxgraph.view.mxGraph
 
-// FSMVisualizer given two types for input string and states, and a LogInfo.
-class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
+class PushDownVisualizer[S, IA, SA](name: String, pdLog: PushDownLogInfo[S, IA, SA]) {
   
   /*
    * The user should be able to see the initial state of the automata when the visualizer is first
@@ -22,11 +21,11 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
    * string and apply it to the visualizer.
    */
   
-  val visitedStates: List[S] = fsmLog.visitedStates()  // list of visited states.
+  val visitedStatesAndStacks: List[(S, List[SA])] = pdLog.visitedStatesAndStacks()
   
-  var currState: S = visitedStates.head       
-  var nextStates: List[S] = visitedStates.tail   
-  var inputString: List[A] = fsmLog.inputString()
+  var currState: (S, List[SA]) = visitedStatesAndStacks.head       
+  var nextStates: List[(S, List[SA])] = visitedStatesAndStacks.tail   
+  var inputString: List[IA] = pdLog.inputString()
   
   val nodeSize: Int = 40
   val gapSize: Int = 20
@@ -39,10 +38,10 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   
   // nodes and edges that compose 
   var nodes: HashMap[S, AnyRef] = HashMap.empty 
-  var edges: ListBuffer[A] = ListBuffer.empty
+  var edges: ListBuffer[IA] = ListBuffer.empty
   
   // frame for visualization
-  val frame: JFrame = new JFrame("FSM Visualizer") 
+  val frame: JFrame = new JFrame("Push Down Visualizer") 
   frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
   
   // label (name) of the automaton
@@ -61,7 +60,7 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   frame.add(inputs, BorderLayout.LINE_START)
   
   // graph to visualize the automaton
-  val graph: JFrame = new JFrame("FSM Graph")
+  val graph: JFrame = new JFrame("Push Down Graph")
   graph.setPreferredSize(new Dimension(graphWidth, graphHeight))
   
   val g: mxGraph = new mxGraph()
@@ -72,7 +71,7 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   g.setCellsResizable(false)
 
   // add a node for each state in the FSM.
-  for (state <- fsmLog.states()) {
+  for (state <- pdLog.states()) {
     var node: AnyRef = g.insertVertex(parent, null, state.toString(), nextCol, nextRow, 
         nodeSize, nodeSize, "shape=ellipse;perimeter=ellipsePerimeter")
         
@@ -85,8 +84,8 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
     nodes += (state -> node)
   }
   
-  for ((from, paths) <- fsmLog.transitions()) {
-    for ((edge, to) <- paths) {
+  for (((from, stack), paths) <- pdLog.transitions()) {
+    for ((edge, (to, stackOp)) <- paths) {
       g.insertEdge(parent, null, "", nodes(from), nodes(to))
     }
   }
@@ -97,6 +96,11 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   
   val graphComponent: mxGraphComponent = new mxGraphComponent(g)
   frame.getContentPane.add(graphComponent)
+  
+  // stack area
+  val stack: JTextArea = new JTextArea(2, 10)
+  stack.setEditable(false)
+  frame.add(stack, BorderLayout.LINE_END)
   
   // StepListener is an object that implements ActionListener 
   object StepListener extends ActionListener {

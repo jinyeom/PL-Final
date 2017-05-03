@@ -22,7 +22,7 @@ class PushDownLogInfo[S, IA, SA](
   def transitions(): HashMap[(S, StackHeadState[SA]), List[(IA, (S, StackOp[SA]))]] = transitions
   def acceptStates(): List[S] = acceptStates
 
-  def visitedStatesAndStacks() = statesAndStackContents
+  def visitedStatesAndStacks() = statesAndStackContents.toList
   
   /* Record that a state was visited */
   def recordVisited(stateAndStack: (S, List[SA])) = {

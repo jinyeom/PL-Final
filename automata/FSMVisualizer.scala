@@ -52,10 +52,10 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   frame.getContentPane.add(label, BorderLayout.PAGE_START)   
     
   // input string table
-  val inputs: JTable = new JTable(inputString.size + 1, 1)
-  inputs.setValueAt("Inputs", 0, 0)
+  val inputs: JTable = new JTable(inputString.size, 1)
+//  inputs.setValueAt("Inputs", 0, 0)
   
-  var i: Int = 1
+  var i: Int = 0
   for (input <- inputString) {
     inputs.setValueAt(input.toString(), i, 0)
     i += 1
@@ -120,7 +120,7 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
           "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#ef5350")
         
         // remove the current input
-        inputs.getModel().asInstanceOf[DefaultTableModel].removeRow(1)
+        inputs.getModel().asInstanceOf[DefaultTableModel].removeRow(0)
         
         g.getModel().endUpdate()
         g.refresh()

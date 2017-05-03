@@ -34,21 +34,29 @@ object Main {
       List(
           'A' ==> (
             << ('a' ==> 'B').
+            __ ('c' ==> 'C').
             __ ('b' ==> 'A') >>
           ),
           'B' ==> (
             << ('a' ==> 'A').
+            __ ('c' ==> 'C').
             __ ('b' ==> 'B') >>
+          ),
+          'C' ==> (
+            << ('a' ==> 'A').
+            __ ('b' ==> 'B').
+            __ ('c' ==> 'C') >>
           )
         ),
-      List('B', 'A')
+      List('B', 'C')
     )
     
     fsm setShouldLogState true
     fsm setLogFileName "test"
     
-    println (fsm accept ('A', "abaa" toList))
-    println (fsm accept ('B', "ababababab" toList))
+//    println (fsm accept ('A', "abaa" toList))
+//    println (fsm accept ('B', "ababababab" toList))
+    println (fsm accept ('A', "abaacabaccbab" toList))
     
     /* Demonstration code ==> no exception handling! */
     val ois = new ObjectInputStream(new FileInputStream(LogUtil.fullFileName("test")))
@@ -59,6 +67,7 @@ object Main {
     println(log.transitions)
     println(log.acceptStates)
     println(log.inputString)
+    println(log.visitedStates())
     
     val vis: FSMVisualizer[Char, Char] = new FSMVisualizer("test", log)
   }
