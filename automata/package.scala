@@ -16,11 +16,11 @@ package object automata {
     def accept(initState: S, string: List[A]) : Boolean
   }
 
-  trait StackOp[+A]
-  case class Push[A](a: A) extends StackOp[A]
-  case object Pop extends StackOp[Nothing]
-  case object DoNothing extends StackOp[Nothing]
-  case class PopPush[A](a: A) extends StackOp[A]
+  trait StackOp
+  case class Push[A](a: A) extends StackOp
+  case object Pop extends StackOp
+  case object DoNothing extends StackOp
+  case class PopPush[A](a: A) extends StackOp
   
   trait StackHeadState[+A]
   case class Head[A](a: A) extends StackHeadState[A]

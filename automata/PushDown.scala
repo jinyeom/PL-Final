@@ -3,11 +3,11 @@ package automata
 // S: state type
 // IA: input alphabet type
 // SA: stack alphabet type
-class PushDown[S, IA, SA](transitions: List[((S, StackHeadState[SA]), List[(IA, (S, StackOp[SA]))])],
+class PushDown[S, IA, SA](transitions: List[((S, StackHeadState[SA]), List[(IA, (S, StackOp))])],
     acceptStates: List[S])
     extends LoggableAutomaton[PushDownLogInfo[S, IA, SA], (S, List[SA]), IA]{
 
-  val transitionMap = scala.collection.mutable.HashMap.empty[(S, StackHeadState[SA]), List[(IA, (S, StackOp[SA]))]]
+  val transitionMap = scala.collection.mutable.HashMap.empty[(S, StackHeadState[SA]), List[(IA, (S, StackOp))]]
   val states = scala.collection.mutable.ListBuffer.empty[S]
   
   transitions map (p =>
@@ -44,11 +44,11 @@ class PushDown[S, IA, SA](transitions: List[((S, StackHeadState[SA]), List[(IA, 
         } else {
           val (state, stackop) = possibleTransitions.head._2
           stackop match {
-            case Push(stackLetter) => stack.push(stackLetter)
+            case Push(stackLetter) => stack.push(stackLetter.asInstanceOf[SA])
             case Pop => if (stack.size > 0) stack.pop()
             case PopPush(stackLetter) => {
               if (stack.size > 0) stack.pop()
-              stack.push(stackLetter)
+              stack.push(stackLetter.asInstanceOf[SA])
             }
             case DoNothing => Unit
           }
