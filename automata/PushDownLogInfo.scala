@@ -9,7 +9,7 @@ class PushDownLogInfo[S, IA, SA](
     logFileName: String,
     inputString: List[IA],
     states: List[S],
-    transitions: HashMap[(S, StackHeadState[SA]), List[(IA, (S, StackOp[SA]))]],
+    transitions: HashMap[(S, StackHeadState[SA]), List[(IA, (S, StackOp))]],
     acceptStates: List[S])
   extends LogInfo(logFileName)
   with Serializable {
@@ -19,7 +19,7 @@ class PushDownLogInfo[S, IA, SA](
 	def logFileName(): String = logFileName
   def inputString(): List[IA] = inputString
   def states(): List[S] = states
-  def transitions(): HashMap[(S, StackHeadState[SA]), List[(IA, (S, StackOp[SA]))]] = transitions
+  def transitions(): HashMap[(S, StackHeadState[SA]), List[(IA, (S, StackOp))]] = transitions
   def acceptStates(): List[S] = acceptStates
 
   def visitedStatesAndStacks() = statesAndStackContents.toList

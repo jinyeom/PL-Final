@@ -74,25 +74,25 @@ object Main {
     
     
     /* PushDown test */
-//    val pda = new PushDown(
-////			List(
-////						("any", 'a', Empty)      ==> ("any", Push('A')),
-////						("any", 'a', Head('A'))  ==> ("any", Push('A')),
-////						("any", 'b', Head('A'))  ==> ("any", Pop),
-////						("any", 'c', Head('A'))  ==> ("any", DoNothing)
-////			),
-//        List(
-//            ("any", Empty) ==> (
-//                << ('a' ==> ("any", Push('A'))) >>
-//            ),
-//            ("any", Head('A')) ==> (
-//                << ('a' ==> ("any", Push('A'))).
-//                __ ('b' ==> (("any", Pop))).
-//                __ ('c' ==> ("any", DoNothing)) >>
-//            )
-//       ),
-//        List.empty // only accept on empty stack
-//	  )
+    val pda = new PushDown(
+//			List(
+//						("any", 'a', Empty)      ==> ("any", Push('A')),
+//						("any", 'a', Head('A'))  ==> ("any", Push('A')),
+//						("any", 'b', Head('A'))  ==> ("any", Pop),
+//						("any", 'c', Head('A'))  ==> ("any", DoNothing)
+//			),
+        List(
+            ("any", Empty) ==> (
+                << ('a' ==> ("any", Push('A'))) >>
+            ),
+            ("any", Head('A')) ==> (
+                << ('a' ==> ("any", Push('A').asInstanceOf[StackOp])).
+                __ ('b' ==> ("any", Pop.asInstanceOf[StackOp])).
+                __ ('c' ==> ("any", DoNothing.asInstanceOf[StackOp])) >>
+            )
+        ),
+        List.empty // only accept on empty stack
+	  )
   }
   
 }
