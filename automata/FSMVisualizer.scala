@@ -28,6 +28,7 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   var currState: S = visitedStates.head       
   var nextStates: List[S] = visitedStates.tail   
   var inputString: List[A] = fsmLog.inputString()
+  var acceptStates: List[S] = fsmLog.acceptStates()
   
   val nodeSize: Int = 40
   val gapSize: Int = 40
@@ -52,10 +53,10 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   frame.getContentPane.add(label, BorderLayout.PAGE_START)   
     
   // input string table
-  val inputs: JTable = new JTable(inputString.size, 1)
-//  inputs.setValueAt("Inputs", 0, 0)
+  val inputs: JTable = new JTable(inputString.size + 1, 1)
+  inputs.setValueAt("Inputs", 0, 0)
   
-  var i: Int = 0
+  var i: Int = 1
   for (input <- inputString) {
     inputs.setValueAt(input.toString(), i, 0)
     i += 1
@@ -77,6 +78,12 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
   for (state <- fsmLog.states()) {
     var node: AnyRef = g.insertVertex(parent, null, state.toString(), nextCol, nextRow, 
         nodeSize, nodeSize, "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#eeeeee")
+        
+    for (s <- fsmLog.acceptStates()) {
+      if (s == state) {
+        node.asInstanceOf[mxCell].setStyle("shape=ellipse;perimeter=HexagonPerimeter;strokeWidth=5;fillColor=#eeeeee")
+      }
+    }
         
     nextCol += (nodeSize + gapSize)
     if (nextCol >= graphWidth) {
@@ -108,19 +115,43 @@ class FSMVisualizer[S, A](name: String, fsmLog: FSMLogInfo[S, A]) {
       if (nextStates.length != 0) {
         g.getModel().beginUpdate()
         
-        // change the currState's color to inactive color
-        nodes(currState).asInstanceOf[mxCell].setStyle(
-          "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#eeeeee")
+        for (s <- fsmLog.acceptStates()) {
+          if (s == currState) {
+            // change the currState's color to inactive color
+            nodes(currState).asInstanceOf[mxCell].setStyle(
+            "shape=ellipse;perimeter=ellipsePerimeter;strokeWidth=5;fillColor=#eeeeee")
+          } else {
+            // change the currState's color to inactive color
+            nodes(currState).asInstanceOf[mxCell].setStyle(
+            "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#eeeeee")
+          }
+        }
+//        
+//        // change the currState's color to inactive color
+//        nodes(currState).asInstanceOf[mxCell].setStyle(
+//          "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#eeeeee")
         
         currState = nextStates.head
         nextStates = nextStates.tail
         
-        // change the new currState's color to active color
-        nodes(currState).asInstanceOf[mxCell].setStyle(
-          "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#ef5350")
+        for (s <- fsmLog.acceptStates()) {
+          if (s == currState) {
+            // change the currState's color to inactive color
+            nodes(currState).asInstanceOf[mxCell].setStyle(
+            "shape=ellipse;perimeter=ellipsePerimeter;strokeWidth=5;fillColor=#eeeeee")
+          } else {
+            // change the currState's color to inactive color
+            nodes(currState).asInstanceOf[mxCell].setStyle(
+            "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#eeeeee")
+          }
+        }
+        
+//        // change the new currState's color to active color
+//        nodes(currState).asInstanceOf[mxCell].setStyle(
+//          "shape=ellipse;perimeter=ellipsePerimeter;fillColor=#ef5350")
         
         // remove the current input
-        inputs.getModel().asInstanceOf[DefaultTableModel].removeRow(0)
+        inputs.getModel().asInstanceOf[DefaultTableModel].removeRow(1)
         
         g.getModel().endUpdate()
         g.refresh()

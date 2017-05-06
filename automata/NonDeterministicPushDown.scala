@@ -3,14 +3,14 @@ package automata
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NonDeterministicPushDown[S, IA, SA](transitions: List[((S, StackHeadState[SA]), List[(IA, List[(S, StackOp[SA])])])],
+class NonDeterministicPushDown[S, IA, SA](transitions: List[((S, StackHeadState[SA]), List[(IA, List[(S, StackOp)])])],
     acceptStates: List[S]) {
     
   
   // NDPushDownState will need the input string, the stack, and the current state
   // using list as the stack
 
-  val transitionMap = scala.collection.mutable.HashMap.empty[(S, StackHeadState[SA]), List[(IA, List[(S, StackOp[SA])])]]
+  val transitionMap = scala.collection.mutable.HashMap.empty[(S, StackHeadState[SA]), List[(IA, List[(S, StackOp)])]]
   transitions map (p =>
     transitionMap += p._1 -> p._2
   )
@@ -37,7 +37,7 @@ class NonDeterministicPushDown[S, IA, SA](transitions: List[((S, StackHeadState[
     }
   }
   
-  private def performStackOp(stack: List[SA], stackop: StackOp[SA]) = {
+  private def performStackOp(stack: List[SA], stackop: StackOp) = {
     stackop match {
       case Push(stackLetter) => stackLetter :: stack
       case Pop => stack match {
